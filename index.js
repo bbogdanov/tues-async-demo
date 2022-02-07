@@ -14,20 +14,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   const spinner = document.querySelector('.loader');
   const charectersHolder = document.querySelector('#starWarsCharecters');
 
+  const spinnerPromise = new Promise((resolve, reject) => {
+    spinner.removeAttribute('hidden');
+    resolve();
+  });
+
   /**
    * Show spinner before the data is loaded and hides it after the data is loaded
    */
-  spinner.removeAttribute('hidden');
-  const charectersResponse = await getStarWarsCharacters();
-  spinner.setAttribute('hidden', true);
+  spinnerPromise.then(async () => {
+    try {
+      const charectersResponse = await getStarWarsCharacters();
+      return charectersResponse;
+    }
+    catch (error) {
+      alert('Error while fetching the data');
+      reject();
+    }
 
-
-  /**
-   * Show the data in the DOM
-   */
-  charectersResponse.results.forEach(charecter => {
-    const li = document.createElement('li');
-    li.innerHTML = charecter.name;
-    charectersHolder.appendChild(li);
+  }).then((response) => {
+    spinner.setAttribute('hidden', true);
+    return response;
+  }).then((response) => {
+    /**
+     * Show the data in the DOM
+     */
+    response.results.forEach(charecter => {
+      const li = document.createElement('li');
+      li.innerHTML = charecter.name;
+      charectersHolder.appendChild(li);
+    });
   });
 });
